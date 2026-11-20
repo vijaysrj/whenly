@@ -253,3 +253,22 @@ button{cursor:pointer}
 .voicenote{margin:10px 0 0;display:flex;align-items:center;gap:8px;font-size:13px;color:var(--soft)}
 .voicenote i{width:8px;height:8px;border-radius:50%;background:var(--coral)}
 .voicenote.err{color:var(--health-ink)}
+
+/* Signed-in app: each section gets its own color, matching the landing page. */
+.card.add{background:var(--care-tint)}
+.card.add h2{color:var(--care-ink)}
+.card.add .badge{background:var(--surface) !important;color:var(--care-ink) !important}
+.card.add .field,.card.add .datebox{background:var(--surface)}
+.since,.tl{border-radius:28px;padding:22px}
+.since{background:var(--purchase-tint)}
+.since .sechead h2{color:var(--purchase-ink)}
+.since .link{color:var(--purchase-ink)}
+.since .tile{background:var(--surface);box-shadow:var(--shadow)}
+.since .tile .ic{background:var(--tint)}
+.since .empty{border-color:transparent}
+.tl{background:var(--home-tint)}
+.tl h2.big{color:var(--home-ink)}
+.tl .count,.tl .typefilter{color:var(--home-ink)}
+.tl .month h3{color:var(--home-ink)}
+.tl .month h3 small{color:var(--home-ink);opacity:.75}
+@media (max-width:480px){.since,.tl{padding:16px;border-radius:24px}}
