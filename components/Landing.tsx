@@ -5,7 +5,7 @@ import { Icon, LogoMark } from "./Icons";
 // Sample content for the landing page only; none of it is real data.
 const STEPS: { n: string; title: string; text: string }[] = [
   { n: "1", title: "Say it in a sentence", text: "“Rohan had a fever yesterday.” Add a date only if you want to. Whenly works it out from the words." },
-  { n: "2", title: "Claude files it", text: "Each memory gets a kind of event, a person and a category. “Hair trimmed” and “went to the barber” both count as a haircut." },
+  { n: "2", title: "Whenly sorts it", text: "Each memory gets a kind of event, a person and a category. “Hair trimmed” and “went to the barber” both count as a haircut." },
   { n: "3", title: "Ask whenever", text: "Questions in plain words, answered from your own timeline, with the memories that back them up." },
 ];
 
