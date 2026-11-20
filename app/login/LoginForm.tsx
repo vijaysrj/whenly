@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { LogoMark } from "@/components/Icons";
 
 export default function LoginForm() {
   const [password, setPassword] = useState("");
@@ -35,7 +36,7 @@ export default function LoginForm() {
     <main className="login">
       <form className="card" onSubmit={submit}>
         <div className="brand">
-          <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="11" fill="#1E1B4B" /><circle cx="18" cy="18" r="9" fill="none" stroke="#6D68C4" strokeWidth="1.6" strokeDasharray="2 3" /><path d="M18 12v6l4 2.5" stroke="#FFFFFF" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" /><circle cx="25.5" cy="10.5" r="3.5" fill="#FF7A59" /></svg>
+          <LogoMark />
           Whenly
         </div>
         <h1>Welcome back<span style={{ color: "var(--coral)" }}>.</span></h1>

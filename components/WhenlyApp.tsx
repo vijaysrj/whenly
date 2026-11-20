@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CATEGORY_KEYS, CATEGORY_LABELS, toCategory, type Category, type EventItem } from "@/lib/categories";
+import { Icon, LogoMark } from "./Icons";
+import { useDictation } from "./useDictation";
 
 type Answer = { headline: string; answer: string; ids: string[] };
 type ToastAction = { label: string; run: () => void };
@@ -15,20 +17,9 @@ const SUGGESTIONS = [
   "When did I buy the land?",
 ];
 
-const ICONS: Record<Category, React.ReactNode> = {
-  health: (<><path d="M20.8 8.6a5 5 0 0 0-8.8-3.2 5 5 0 0 0-8.8 3.2c0 5.4 8.8 11 8.8 11s8.8-5.6 8.8-11z" /><path d="M3.5 12h4l2-3 3 6 2-3h6" /></>),
-  care: (<><circle cx="6" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><path d="M20 4L8.1 15.9M14.5 14.5L20 20M8.1 8.1L12 12" /></>),
-  purchase: (<><path d="M6 7h12l1 14H5L6 7z" /><path d="M9 7a3 3 0 0 1 6 0" /></>),
-  home: (<><path d="M3 11l9-7 9 7" /><path d="M5 10v10h14V10" /><path d="M10 20v-6h4v6" /></>),
-  family: (<><circle cx="9" cy="8" r="3.5" /><path d="M2.5 20a6.5 6.5 0 0 1 13 0" /><path d="M16 4.5a3.5 3.5 0 0 1 0 7M18 14a6 6 0 0 1 3.5 6" /></>),
-  other: (<><circle cx="12" cy="12" r="8" /><path d="M12 8v4l2.5 2" /></>),
-};
-
-function Icon({ category, size }: { category: Category; size: number }) {
+function MicIcon() {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      {ICONS[category]}
-    </svg>
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v3" /></svg>
   );
 }
 
@@ -72,9 +63,11 @@ export default function WhenlyApp({ initialEvents, initialPinned }: { initialEve
   const [editingId, setEditingId] = useState<string | null>(null);
   const [confirmingId, setConfirmingId] = useState<string | null>(null);
   const [addText, setAddText] = useState("");
+  const addVoice = useDictation(setAddText);
   const [addDate, setAddDate] = useState("");
   const [adding, setAdding] = useState(false);
   const [query, setQuery] = useState("");
+  const askVoice = useDictation(setQuery);
   const [asking, setAsking] = useState(false);
   const [answer, setAnswer] = useState<Answer | null>(null);
   const [toast, setToast] = useState<Toast>(null);
@@ -238,7 +231,7 @@ export default function WhenlyApp({ initialEvents, initialPinned }: { initialEve
 
   async function signOut() {
     await fetch("/api/logout", { method: "POST" }).catch(() => undefined);
-    window.location.href = "/login";
+    window.location.href = "/";
   }
 
   // ---------- render ----------
@@ -252,7 +245,7 @@ export default function WhenlyApp({ initialEvents, initialPinned }: { initialEve
       <header>
         <div className="top">
           <div className="brand">
-            <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden="true"><rect width="36" height="36" rx="11" fill="#1E1B4B" /><circle cx="18" cy="18" r="9" fill="none" stroke="#6D68C4" strokeWidth="1.6" strokeDasharray="2 3" /><path d="M18 12v6l4 2.5" stroke="#FFFFFF" strokeWidth="2.4" fill="none" strokeLinecap="round" strokeLinejoin="round" /><circle cx="25.5" cy="10.5" r="3.5" fill="#FF7A59" /></svg>
+            <LogoMark />
             Whenly
           </div>
           <div className="top-right">
@@ -277,7 +270,14 @@ export default function WhenlyApp({ initialEvents, initialPinned }: { initialEve
           </div>
           <form className="addrow" onSubmit={addMemory} autoComplete="off">
             <label className="sr" htmlFor="addText">Describe what happened</label>
-            <input ref={addInput} className="field main" id="addText" placeholder="Rohan had a fever yesterday" maxLength={400} value={addText} onChange={(e) => setAddText(e.target.value)} />
+            <div className="speakwrap">
+              <input ref={addInput} className="field main" id="addText" placeholder={addVoice.listening ? "Listening…" : "Rohan had a fever yesterday"} maxLength={400} value={addText} onChange={(e) => setAddText(e.target.value)} />
+              {addVoice.supported ? (
+                <button type="button" className="mic" aria-pressed={addVoice.listening} aria-label={addVoice.listening ? "Stop listening" : "Say it instead of typing"} onClick={() => (addVoice.listening ? addVoice.stop() : addVoice.start(addText))}>
+                  <MicIcon />
+                </button>
+              ) : null}
+            </div>
             <label className="datebox" htmlFor="addDate">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="3" /><path d="M3 10h18M8 3v4M16 3v4" /></svg>
               <span>When</span>
@@ -288,6 +288,8 @@ export default function WhenlyApp({ initialEvents, initialPinned }: { initialEve
               <span>{adding ? "Reading…" : "Remember this"}</span>
             </button>
           </form>
+          {addVoice.listening ? <p className="voicenote" role="status"><i />Listening. Say what happened, then pause.</p> : null}
+          {addVoice.error ? <p className="voicenote err" role="alert">{addVoice.error}</p> : null}
           {events.length === 0 ? (
             <div className="hint">
               <span>Try:</span>
@@ -305,7 +307,12 @@ export default function WhenlyApp({ initialEvents, initialPinned }: { initialEve
             <h2 id="ask-h">When was<br />the last time<span>?</span></h2>
             <form className="askbar" onSubmit={(e) => { e.preventDefault(); ask(query); }} autoComplete="off">
               <label className="sr" htmlFor="askText">Ask a question about your memories</label>
-              <input id="askText" placeholder="When did my kid last have fever?" maxLength={300} value={query} onChange={(e) => setQuery(e.target.value)} />
+              <input id="askText" placeholder={askVoice.listening ? "Listening…" : "When did my kid last have fever?"} maxLength={300} value={query} onChange={(e) => setQuery(e.target.value)} />
+              {askVoice.supported ? (
+                <button type="button" className="mic mic-ask" aria-pressed={askVoice.listening} aria-label={askVoice.listening ? "Stop listening" : "Ask by speaking"} onClick={() => (askVoice.listening ? askVoice.stop() : askVoice.start(query))}>
+                  <MicIcon />
+                </button>
+              ) : null}
               <button className="go" type="submit" aria-label="Ask" disabled={asking}>
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg>
               </button>
